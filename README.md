@@ -1,3 +1,14 @@
+# Site
+
+Two installable **Progressive Web Apps**, both built in plain HTML/CSS/JS in the
+shared dark + lime design language:
+
+1. **Stores — Sales Dashboard** (root) — the design template.
+2. **Зарплата** (`/zarplata/`) — a real earnings tracker, redesigned in this
+   style. See [`zarplata/`](zarplata/) and the section at the bottom.
+
+---
+
 # Stores — Sales Dashboard (PWA)
 
 A mobile-first dashboard UI recreated in plain HTML/CSS/JS as an installable
@@ -71,3 +82,45 @@ for new pages instead of writing new CSS.
 `assets/icons/icon.svg` is the master icon. The PNG sizes (`icon-180/192/512`
 and `icon-maskable-512`) are generated from it and referenced by
 `manifest.webmanifest` and the `apple-touch-icon` link.
+
+---
+
+# Зарплата — earnings tracker (`/zarplata/`)
+
+A personal earnings tracker, **redesigned** from an older single-file app into
+the modern dark + lime design language of this repo. All functionality and data
+are preserved — the redesign is purely the visual/UX layer.
+
+Open `zarplata/index.html`. On a phone: **Поделиться → На экран «Домой»** (iOS)
+or **Install app** (Android/Chrome) to install it as its own app (its own icon,
+name and offline scope, separate from the dashboard).
+
+## Features (unchanged from the original)
+
+- **Дни** — per-day earnings: a hero total card, per-system tags, record list,
+  swipe/arrows to move between days, "repeat previous day".
+- **Журнал** — searchable log of every record, grouped by date with daily totals.
+- **Статистика** — monthly goal progress, distribution donut (by pay system),
+  averages & month forecast, 6-month dynamics bars, all-time and by-year totals.
+- **Ставки** — pay rates (hourly / per-shift / piece-rate for «Доска» &
+  «Переклейка»), monthly goal, and JSON backup (export / import).
+- **Add / edit** flow in a bottom sheet with a live sum preview.
+
+## Data & compatibility
+
+- Everything is stored **on-device** in `localStorage`
+  (`zp_rec_v4`, `zp_rate_v4`, `zp_goal_v4`).
+- The record model is **identical** to the original, so existing data keeps
+  working after the redesign. Rates are stamped per-record, so changing a rate
+  never rewrites past earnings.
+- The app also runs as a standalone `file://` page; the service worker
+  (`sw.js`) only adds offline caching when hosted over http(s).
+
+## What changed in the redesign
+
+- New type system (Plus Jakarta Sans), tokens and spacing matching the dashboard.
+- Day total turned into a gradient **hero card** with lime glow + ring motif.
+- Records, stats and the goal/donut/bars restyled as large rounded cards.
+- Modern bottom tab bar (icon + label + active lime dot), redesigned FAB.
+- Reworked bottom sheet (rounded, lime stepper, colored option tiles, live sum).
+- New app icon (`icon.svg` + generated PNG sizes) with a ₽ + rising-bars mark.

@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Зарплата">
+<meta name="theme-color" content="#191919">
+<title>Зарплата</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  :root{
+    --bg:#191919; --bg2:#141414; --card:#232323; --card2:#2b2b2b; --card3:#333640; --line:rgba(255,255,255,.09);
+    --ink:#F4F5F2; --muted:rgba(255,255,255,.56); --dim:rgba(255,255,255,.36);
+    --acc:#CBFF4D; --acc-b:#D6FF3D; --acc-d:#A8E02E; --on-acc:#16210A;
+    --blue1:#8FA2EE; --blue2:#6478D6; --blue3:#4A5CC0;
+    --hour:#CBFF4D; --shift:#7AA2FF; --piece:#FF8A5B; --red:#FF6B5B;
+    --r-xl:32px; --r-lg:26px; --r-md:20px; --r-sm:15px;
+    --font:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:var(--font);background:#0d0d0d;color:var(--ink);overflow:hidden;position:fixed;inset:0;
+    -webkit-font-smoothing:antialiased;font-weight:400}
+  button,input{font-family:inherit;color:inherit}
+  svg{display:block}
+
+  #app{position:relative;height:100dvh;max-width:460px;margin:0 auto;display:flex;flex-direction:column;overflow:hidden;
+    padding-top:env(safe-area-inset-top);
+    background:radial-gradient(130% 55% at 82% -5%, #222530 0%, var(--bg) 55%)}
+  .screen{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .screen::-webkit-scrollbar{display:none}
+  .screen.hidden{display:none}
+
+  @media (min-width:481px){
+    body{position:relative;inset:auto;overflow:auto;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:22px 0;background:#0b0b0b}
+    #app{height:min(920px,94dvh);border-radius:48px;box-shadow:0 40px 120px rgba(0,0,0,.6),0 0 0 10px #050505,0 0 0 12px #262626}
+  }
+
+  /* ---------- DAYS ---------- */
+  .daysHeader{padding:22px 20px 8px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .navArrow{width:48px;height:48px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.04);
+    color:var(--ink);display:flex;align-items:center;justify-content:center;transition:transform .1s,background .2s}
+  .navArrow:active{transform:scale(.9);background:var(--card2)}
+  .navArrow:disabled{opacity:.28}
+  .dayHead{position:relative;text-align:center;padding:2px 8px;flex:1}
+  .dateOverlay{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:none;background:none;margin:0;padding:0;-webkit-appearance:none}
+  .dayBig{font-size:23px;font-weight:800;letter-spacing:-.4px}
+  .daySub{font-size:13px;color:var(--muted);margin-top:3px;font-weight:500}
+  .daySub::after{content:" ⌄";color:var(--dim)}
+  .todayRow{display:flex;justify-content:center}
+  .todayBtn{display:none;align-items:center;gap:5px;background:rgba(203,255,77,.10);border:1px solid rgba(203,255,77,.28);
+    color:var(--acc);font-size:12px;font-weight:700;padding:7px 15px;border-radius:30px;margin-top:8px;transition:transform .1s}
+  .dots{display:flex;justify-content:center;gap:6px;padding:14px 0 4px}
+  .dot{width:6px;height:6px;border-radius:3px;background:#33363f;transition:all .25s}
+  .dot.on{background:var(--acc);width:20px}
+  .daysScroll{height:100%;overflow-y:auto;scrollbar-width:none;padding:10px 20px calc(112px + env(safe-area-inset-bottom))}
+  .daysScroll::-webkit-scrollbar{display:none}
+
+  .dayCard{margin:6px 0 22px;padding:26px 24px;border-radius:var(--r-xl);position:relative;overflow:hidden;
+    background:linear-gradient(158deg,#242835 0%,#15171e 62%,#141620 100%);border:1px solid var(--line)}
+  .dayCard::before{content:"";position:absolute;width:240px;height:240px;border-radius:50%;right:-70px;top:-90px;
+    background:radial-gradient(circle,var(--acc) 0%,transparent 68%);opacity:.22;pointer-events:none}
+  .dayCard::after{content:"";position:absolute;right:-50px;top:-60px;width:220px;height:220px;border-radius:50%;
+    background:repeating-radial-gradient(circle at center,rgba(255,255,255,.06) 0 1px,transparent 1px 24px);pointer-events:none}
+  .kicker{font-size:11px;letter-spacing:2px;color:var(--muted);position:relative;font-weight:700;text-transform:uppercase}
+  .dayAmt{font-size:46px;font-weight:800;letter-spacing:-1.8px;margin-top:10px;line-height:1;position:relative}
+  .dayAmt .cur{color:var(--acc)}
+  .tags{display:flex;gap:8px;margin-top:20px;position:relative;flex-wrap:wrap}
+  .tag{font-size:12px;padding:8px 13px;border-radius:30px;font-weight:600}
+  .tagMuted{font-size:12px;padding:8px 13px;border-radius:30px;color:var(--dim);background:rgba(255,255,255,.05)}
+
+  .secRow{display:flex;justify-content:space-between;align-items:center;margin:8px 4px 14px}
+  .secTi{font-size:19px;font-weight:700;letter-spacing:-.3px}
+  .secSa{font-size:13px;color:var(--dim);font-weight:600}
+  .rec{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:15px 34px 15px 15px;margin-bottom:11px;
+    display:flex;align-items:center;gap:14px;transition:transform .12s,background .2s}
+  .rec:active{background:var(--card2);transform:scale(.99)}
+  .recDot{width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .recL1{font-size:15px;font-weight:700}
+  .recL2{font-size:12.5px;color:var(--muted);margin-top:3px;font-weight:500}
+  .recNote{font-size:12px;color:var(--dim);margin-top:3px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .recSum{font-size:17px;font-weight:800;white-space:nowrap;letter-spacing:-.3px}
+  .recChev{position:absolute;right:12px;top:50%;transform:translateY(-50%);display:flex;opacity:.5}
+  .empty{text-align:center;color:var(--dim);padding:34px 20px;font-size:14px;line-height:1.7}
+
+  .repeatBtn,.dupBtn{width:100%;border-radius:16px;padding:15px;font-size:14px;font-weight:700;
+    background:rgba(203,255,77,.09);color:var(--acc);border:1px solid rgba(203,255,77,.24);
+    display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .1s}
+  .repeatBtn{margin-bottom:16px}
+  .dupBtn{margin-top:14px}
+
+  /* ---------- JOURNAL ---------- */
+  .logHead{display:flex;justify-content:space-between;align-items:baseline;margin:22px 4px 12px}
+  .logHead .ld{font-size:13px;font-weight:700;letter-spacing:.2px}
+  .logHead .ls{font-size:14px;color:var(--acc);font-weight:800}
+  #logSearch{margin-bottom:10px}
+
+  /* ---------- PAGES ---------- */
+  .page{height:100%;overflow-y:auto;scrollbar-width:none;padding:26px 20px calc(120px + env(safe-area-inset-bottom))}
+  .page::-webkit-scrollbar{display:none}
+  .pageTitle{font-size:30px;font-weight:800;letter-spacing:-.6px;margin:4px 2px 20px}
+  .statCard{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px;margin-bottom:14px}
+  .statH{font-size:12px;letter-spacing:1.4px;font-weight:700;margin-bottom:18px;color:var(--muted);text-transform:uppercase}
+  .mArrow{width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.04);
+    color:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .1s}
+  .mArrow:active{transform:scale(.9)}
+  .mArrow:disabled{opacity:.3}
+  .goalBarWrap{height:14px;border-radius:10px;background:var(--card2);overflow:hidden}
+  .goalBar{height:100%;width:0;border-radius:10px;background:linear-gradient(90deg,var(--acc-d),var(--acc-b));
+    box-shadow:0 0 18px rgba(203,255,77,.35);transition:width .6s cubic-bezier(.22,.9,.3,1)}
+  .legrow{display:flex;align-items:center;gap:12px;margin-bottom:13px}
+  .legrow:last-child{margin-bottom:0}
+  .legrow .sw{width:12px;height:12px;border-radius:5px}
+  .legrow .nm{flex:1;font-size:13px;color:var(--muted);font-weight:500}
+  .legrow .vl{font-weight:700;font-size:14px}
+  .bars{display:flex;align-items:flex-end;gap:9px;height:160px}
+  .bars .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end}
+  .bars .bval{font-size:9px;color:var(--muted);font-weight:700;height:12px;line-height:12px}
+  .bars .barWrap{flex:1;width:100%;display:flex;align-items:flex-end;min-height:0}
+  .bars .bar{width:100%;border-radius:9px 9px 5px 5px;background:linear-gradient(180deg,var(--acc),var(--acc-d));min-height:4px}
+  .bars .bar.sel{background:linear-gradient(180deg,#ffffff,var(--acc));box-shadow:0 0 16px rgba(203,255,77,.3)}
+  .bars .bl{font-size:10px;color:var(--dim);font-weight:600}
+  .bars .bl.sel{color:var(--acc)}
+  .totrow{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}
+  .totrow:last-child{border:none}
+  .totrow .k{color:var(--muted);font-size:14px;font-weight:500}
+  .totrow .v{font-weight:700;font-size:15px}
+
+  /* inputs / buttons */
+  .fieldLbl{font-size:11px;letter-spacing:.6px;color:var(--muted);margin-bottom:9px;text-transform:uppercase;font-weight:600}
+  input[type=date],input[type=number],input[type=text]{width:100%;background:var(--card2);border:1px solid var(--line);
+    border-radius:16px;padding:16px;font-size:16px;color:var(--ink);margin-bottom:14px;-webkit-appearance:none;font-weight:500}
+  input:focus{outline:none;border-color:var(--acc);background:#2f3128}
+  input::placeholder{color:var(--dim);font-weight:400}
+  .primBtn{width:100%;border:none;border-radius:16px;padding:17px;font-size:16px;font-weight:800;background:var(--acc);color:var(--on-acc);margin-top:6px;
+    box-shadow:0 10px 26px rgba(203,255,77,.22);transition:transform .1s,background .15s}
+  .primBtn:active{background:var(--acc-d);transform:scale(.985)}
+  .ghostBtn{border-radius:16px;padding:16px;font-size:15px;background:var(--card2);color:var(--ink);border:1px solid var(--line);flex:0 0 96px;margin-top:6px;font-weight:600;transition:transform .1s}
+  .delBtn{width:100%;border-radius:16px;padding:15px;font-size:15px;background:rgba(255,107,91,.09);color:var(--red);
+    border:1px solid rgba(255,107,91,.22);margin-top:10px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .1s}
+  .delConfirm{margin-top:12px;background:rgba(255,107,91,.06);border:1px solid rgba(255,107,91,.2);border-radius:18px;padding:16px}
+  .delConfirm .dcq{font-size:14px;color:var(--red);display:block;text-align:center;margin-bottom:12px;font-weight:600}
+
+  /* nav + fab */
+  nav{position:absolute;bottom:0;left:0;right:0;z-index:40;
+    background:linear-gradient(180deg,rgba(20,20,20,.72),var(--bg) 62%);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-around;
+    padding:10px 8px calc(10px + env(safe-area-inset-bottom))}
+  nav button{background:none;border:none;flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--dim);padding:4px 0 2px}
+  nav button .t{font-size:10.5px;font-weight:700}
+  nav button::after{content:"";width:5px;height:5px;border-radius:50%;background:var(--acc);opacity:0;transition:opacity .2s}
+  nav button.active{color:var(--acc)}
+  nav button.active::after{opacity:1}
+  .fab{position:absolute;bottom:calc(86px + env(safe-area-inset-bottom));right:22px;width:62px;height:62px;border-radius:20px;z-index:41;
+    border:none;background:var(--acc);box-shadow:0 14px 32px rgba(203,255,77,.32);display:flex;align-items:center;justify-content:center;transition:transform .12s}
+  .fab:active{transform:scale(.9)}
+
+  /* sheet */
+  .overlay{position:absolute;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+    display:none;align-items:flex-end;z-index:50}
+  .overlay.show{display:flex}
+  .sheet{background:var(--bg2);width:100%;border-radius:32px 32px 0 0;border-top:1px solid var(--line);
+    padding:12px 22px calc(28px + env(safe-area-inset-bottom));max-height:93%;overflow-y:auto;scrollbar-width:none;
+    animation:rise .34s cubic-bezier(.2,.9,.3,1)}
+  .sheet::-webkit-scrollbar{display:none}
+  @keyframes rise{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .grip{width:44px;height:5px;background:rgba(255,255,255,.14);border-radius:3px;margin:6px auto 20px}
+  .steps{display:flex;gap:6px;margin-bottom:22px}
+  .steps i{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.08)}
+  .steps i.on{background:var(--acc)}
+  .qh{font-size:25px;font-weight:800;margin-bottom:5px;letter-spacing:-.4px}
+  .qs{font-size:13px;color:var(--muted);margin-bottom:24px;font-weight:500}
+  .optBtn{width:100%;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:12px;
+    display:flex;align-items:center;gap:15px;text-align:left;transition:transform .1s,border-color .2s}
+  .optBtn:active{border-color:var(--acc);transform:scale(.99)}
+  .optIc{width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .optL{font-size:16px;font-weight:700} .optD{font-size:12px;color:var(--muted);margin-top:2px;font-weight:500}
+  .seg2{display:flex;gap:10px;margin-bottom:16px}
+  .seg2 button{flex:1;background:var(--card);border:1px solid var(--line);color:var(--muted);border-radius:15px;padding:15px;font-size:14px;font-weight:600;transition:.15s}
+  .seg2 button.on{border-color:var(--acc);color:var(--acc);background:rgba(203,255,77,.1)}
+  .pick3{display:flex;gap:9px;margin-bottom:12px}
+  .pick3 input{margin:0;padding:16px 8px;font-size:15px;text-align:center}
+  .row2{display:flex;gap:10px}
+  .row2>div{flex:1}
+  .formulaHint{font-size:12px;color:var(--muted);background:var(--card2);border:1px solid var(--line);border-radius:13px;
+    padding:11px 12px;margin:2px 0 15px;text-align:center;font-weight:500}
+  .liveBox{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px 20px;margin:6px 0 18px;
+    display:flex;justify-content:space-between;align-items:center}
+  .liveBox .cl{font-size:12px;color:var(--muted);font-weight:500} .liveBox .cvol{font-size:12px;color:var(--acc);font-weight:600}
+  .liveBox .cv{font-size:27px;font-weight:800;color:var(--acc);letter-spacing:-.5px}
+  .btnrow{display:flex;gap:10px}
+  .toast{position:absolute;bottom:calc(112px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+    background:var(--acc);color:var(--on-acc);padding:14px 20px;border-radius:30px;font-size:14px;font-weight:700;z-index:99;
+    display:flex;align-items:center;gap:12px;max-width:90%;box-shadow:0 14px 34px rgba(0,0,0,.4)}
+  .toastU{background:var(--on-acc);color:var(--acc);border:none;border-radius:20px;padding:7px 13px;font-size:13px;font-weight:800;flex-shrink:0}
+  .installTip{margin:0 0 18px;padding:15px 16px;background:rgba(203,255,77,.09);border:1px solid rgba(203,255,77,.22);
+    border-radius:18px;font-size:13px;display:flex;gap:11px;align-items:flex-start;line-height:1.5}
+  .installTip b{color:var(--acc)}
+  .installTip button{margin-left:auto;background:none;border:none;color:var(--acc);font-size:18px;flex-shrink:0}
+
+  /* ---------- motion ---------- */
+  .donut-seg{transition:stroke-dasharray .7s cubic-bezier(.3,.85,.3,1)}
+  .bars .bar{transition:height .55s cubic-bezier(.22,.9,.3,1)}
+  .overlay{transition:opacity .24s ease}
+  .overlay.closing{opacity:0}
+  .sheet.closing{animation:fall .25s cubic-bezier(.4,0,.6,1) forwards}
+  @keyframes fall{from{transform:translateY(0)}to{transform:translateY(100%)}}
+  .toast.out{animation:toastOut .2s ease forwards}
+  @keyframes toastOut{from{opacity:1}to{opacity:0;transform:translate(-50%,10px)}}
+  .primBtn:active,.ghostBtn:active,.delBtn:active,.dupBtn:active,.repeatBtn:active,.todayBtn:active{transform:scale(.975)}
+  @keyframes scrIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes recIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @keyframes ovIn{from{opacity:0}to{opacity:1}}
+  @keyframes toastIn{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}
+  @keyframes pop{from{transform:scale(.82)}to{transform:scale(1)}}
+  @media (prefers-reduced-motion: no-preference){
+    .screen:not(.hidden){animation:scrIn .26s cubic-bezier(.22,.9,.3,1)}
+    #recList .rec{animation:recIn .32s both cubic-bezier(.22,.9,.3,1)}
+    .overlay.show{animation:ovIn .24s ease}
+    .toast{animation:toastIn .28s cubic-bezier(.2,.9,.3,1)}
+    nav button.active .ico{animation:pop .32s cubic-bezier(.3,1.5,.5,1)}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .sheet{animation:none}
+    .bars .bar,.goalBar,.donut-seg{transition:none}
+    #recList .rec{animation:none}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <section class="screen" id="scr-days">
+    <div class="daysHeader">
+      <button class="navArrow" id="dPrev" aria-label="Предыдущий день"></button>
+      <div class="dayHead" id="dayHead">
+        <div class="dayBig" id="dayBig"></div>
+        <div class="daySub" id="daySub"></div>
+        <input type="date" id="dJump" class="dateOverlay" aria-label="Перейти к дате">
+      </div>
+      <button class="navArrow" id="dNext" aria-label="Следующий день"></button>
+    </div>
+    <div class="todayRow"><button class="todayBtn" id="todayBtn" aria-label="Перейти к сегодня">↓ Сегодня</button></div>
+    <div class="dots" id="dots"></div>
+    <div class="daysScroll" id="daysScroll">
+      <div class="installTip" id="installTip">
+        <span>✦</span><div>Установить как приложение: <b>Поделиться → На экран «Домой»</b>. Данные сохранятся на телефоне.</div>
+        <button onclick="document.getElementById('installTip').style.display='none'">×</button>
+      </div>
+      <div class="dayCard">
+        <div class="kicker">За день</div>
+        <div class="dayAmt" id="dayAmt">0 <span class="cur">₽</span></div>
+        <div class="tags" id="dayTags"></div>
+      </div>
+      <div class="secRow"><span class="secTi">Записи</span><span class="secSa" id="recCount"></span></div>
+      <div id="recList"></div>
+    </div>
+    <button class="fab" id="fabDay" aria-label="Добавить запись"></button>
+  </section>
+
+  <section class="screen hidden page" id="scr-log">
+    <div class="pageTitle">Журнал</div>
+    <input type="text" id="logSearch" placeholder="Поиск: смена, доска, заметка, дата…" oninput="onLogSearch()">
+    <div id="logList"></div>
+  </section>
+
+  <section class="screen hidden page" id="scr-stats">
+    <div class="pageTitle">Статистика</div>
+
+    <div class="statCard" id="goalCard" style="display:none">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
+        <div class="statH" style="margin:0">Цель месяца</div>
+        <div id="goalPct" style="font-size:14px;font-weight:800;color:var(--acc)"></div>
+      </div>
+      <div class="goalBarWrap"><div class="goalBar" id="goalBar"></div></div>
+      <div id="goalText" style="font-size:13px;color:var(--muted);margin-top:12px;font-weight:500"></div>
+    </div>
+
+    <div class="statCard" id="distCard">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <button class="mArrow" id="mPrev" aria-label="Предыдущий месяц"></button>
+        <div style="text-align:center">
+          <div style="font-size:12px;letter-spacing:1.4px;font-weight:700;color:var(--muted);text-transform:uppercase">Распределение</div>
+          <div style="font-size:13px;color:var(--ink);margin-top:3px;font-weight:600" id="mLabel"></div>
+        </div>
+        <button class="mArrow" id="mNext" aria-label="Следующий месяц"></button>
+      </div>
+      <div style="display:flex;justify-content:center;position:relative;margin:6px 0 20px">
+        <svg width="180" height="180" viewBox="0 0 180 180" id="donut"></svg>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
+          <div style="font-size:25px;font-weight:800;letter-spacing:-.5px" id="donutTotal">0 ₽</div>
+          <div style="font-size:11px;color:var(--muted);letter-spacing:1px;font-weight:600;text-transform:uppercase">за месяц</div>
+        </div>
+      </div>
+      <div id="legend"></div>
+    </div>
+
+    <div class="statCard">
+      <div class="statH">Среднее и прогноз</div>
+      <div id="avgRows"></div>
+    </div>
+
+    <div class="statCard">
+      <div class="statH">Динамика · 6 месяцев</div>
+      <div class="bars" id="bars"></div>
+    </div>
+
+    <div class="statCard">
+      <div class="statH">За всё время</div>
+      <div id="allTime"></div>
+    </div>
+
+    <div class="statCard">
+      <div class="statH">По годам</div>
+      <div id="byYear"></div>
+    </div>
+  </section>
+
+  <section class="screen hidden page" id="scr-set">
+    <div class="pageTitle">Ставки</div>
+    <div class="statCard">
+      <div class="statH">Ставки оплаты</div>
+      <div class="fieldLbl">Почасовая · ₽/час</div><input type="number" id="r_hour" inputmode="decimal">
+      <div class="fieldLbl">За смену · ₽</div><input type="number" id="r_shift" inputmode="decimal">
+      <div class="fieldLbl">Сделка «Доска» · ₽/м³</div><input type="number" id="r_board" inputmode="decimal">
+      <div class="fieldLbl">Сделка «Переклейка» · ₽/м³</div><input type="number" id="r_reglue" inputmode="decimal">
+      <div class="fieldLbl">Цель на месяц · ₽ (0 — выключить)</div><input type="number" id="r_goal" inputmode="decimal">
+      <button class="primBtn" onclick="saveRates()">Сохранить</button>
+      <div style="font-size:12px;color:var(--dim);margin-top:14px;line-height:1.5;font-weight:500">Новая ставка применяется только к будущим записям. Заработок прошлых дней не меняется.</div>
+    </div>
+    <div class="statCard">
+      <div class="statH">Резервная копия</div>
+      <div class="totrow"><span class="k">Сохрани данные на всякий случай</span></div>
+      <button class="primBtn" style="background:var(--shift);color:#0b1020;box-shadow:0 10px 26px rgba(122,162,255,.22);margin-top:16px" onclick="exportData()">Скачать копию (.json)</button>
+      <label class="ghostBtn" style="flex:none;display:block;text-align:center;margin-top:10px;cursor:pointer">Загрузить из копии
+        <input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+      <div class="delConfirm" id="importConfirm" style="display:none">
+        <span class="dcq" id="importConfirmText"></span>
+        <div class="btnrow"><button class="ghostBtn" onclick="cancelImport()">Отмена</button>
+        <button class="primBtn" style="flex:1;margin-top:0" onclick="confirmImport()">Да, заменить</button></div>
+      </div>
+    </div>
+  </section>
+
+  <nav>
+    <button class="active" id="nav-days" onclick="go('days')"><span class="ico" id="ic-days"></span><span class="t">Дни</span></button>
+    <button id="nav-log" onclick="go('log')"><span class="ico" id="ic-log"></span><span class="t">Журнал</span></button>
+    <button id="nav-stats" onclick="go('stats')"><span class="ico" id="ic-stats"></span><span class="t">Статистика</span></button>
+    <button id="nav-set" onclick="go('set')"><span class="ico" id="ic-set"></span><span class="t">Ставки</span></button>
+  </nav>
+
+  <div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
+</div>
+
+<script>
+const LS="zp_rec_v4", LS_R="zp_rate_v4", LS_G="zp_goal_v4";
+const DEF={hour:350,shift:6000,board:170,reglue:166};
+const MN=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+const MNs=["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+const WD=["Воскресенье","Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"];
+const SYS={
+  hour:{l:"Почасовка",ic:"clock",c:"#CBFF4D",s:"rgba(203,255,77,.12)"},
+  shift:{l:"Смена",ic:"shift",c:"#7AA2FF",s:"rgba(122,162,255,.12)"},
+  piece:{l:"Сделка",ic:"box",c:"#FF8A5B",s:"rgba(255,138,91,.12)"}};
+const SYS_FB={l:"Запись",ic:"box",c:"#8A8E9B",s:"rgba(138,142,155,.12)"};
+function sysInfo(s){return SYS[s]||SYS_FB}
+
+/* Apple-style line icons */
+function icon(name,size,color,sw){
+  size=size||24;color=color||"currentColor";sw=sw||1.7;
+  const a=`fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"`;
+  const P={
+    clock:`<circle cx="12" cy="12" r="8.5" ${a}/><path d="M12 7.5V12l3 1.8" ${a}/>`,
+    shift:`<path d="M17.5 13.5A6 6 0 1 1 10.5 6.5a4.7 4.7 0 0 0 7 7Z" ${a}/>`,
+    box:`<path d="M12 3 4.5 7v10L12 21l7.5-4V7L12 3Z" ${a}/><path d="M4.5 7 12 11l7.5-4M12 11v10" ${a}/>`,
+    grid:`<rect x="4" y="4" width="7" height="7" rx="2" ${a}/><rect x="13" y="4" width="7" height="7" rx="2" ${a}/><rect x="4" y="13" width="7" height="7" rx="2" ${a}/><rect x="13" y="13" width="7" height="7" rx="2" ${a}/>`,
+    chart:`<path d="M4 20V10M10 20V4M16 20v-7M22 20H2" ${a}/>`,
+    gear:`<circle cx="12" cy="12" r="3.2" ${a}/><path d="M12 2.8v2.2M12 19v2.2M4.4 7.2l1.9 1.1M17.7 15.7l1.9 1.1M4.4 16.8l1.9-1.1M17.7 8.3l1.9-1.1" ${a}/>`,
+    plus:`<path d="M12 5.5v13M5.5 12h13" ${a}/>`,
+    left:`<path d="M14.5 6 9 12l5.5 6" ${a}/>`,
+    right:`<path d="M9.5 6 15 12l-5.5 6" ${a}/>`,
+    trash:`<path d="M5.5 7h13M9.5 7V5.2c0-.7.5-1.2 1.2-1.2h2.6c.7 0 1.2.5 1.2 1.2V7M7 7l.8 11.5c0 .8.7 1.5 1.5 1.5h5.4c.8 0 1.5-.7 1.5-1.5L18 7" ${a}/>`,
+    list:`<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" ${a}/>`,
+    chev:`<path d="M9 6l6 6-6 6" ${a}/>`,
+    copy:`<rect x="8" y="8" width="11" height="11" rx="2.5" ${a}/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8" ${a}/>`,
+    repeat:`<path d="M17 2.5 20 5.5 17 8.5M20 5.5H8.5A4.5 4.5 0 0 0 4 10v.5M7 21.5 4 18.5 7 15.5M4 18.5h11.5A4.5 4.5 0 0 0 20 14v-.5" ${a}/>`,
+  };
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24">${P[name]}</svg>`;
+}
+
+let records=load(LS,[]), rates=load(LS_R,DEF), goal=load(LS_G,0);
+function load(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
+let storageWarned=false;
+function persist(){try{localStorage.setItem(LS,JSON.stringify(records));localStorage.setItem(LS_R,JSON.stringify(rates));localStorage.setItem(LS_G,JSON.stringify(goal))}
+  catch(e){if(!storageWarned){storageWarned=true;try{flash("Не удалось сохранить: память переполнена или приватный режим")}catch(_){}}}}
+function fmt(n){return Math.round(n).toLocaleString("ru-RU")+" ₽"}
+function kfmt(n){n=Math.round(n);return n>=1000?Math.round(n/1000)+"к":n+""}
+const prefersReduced=!!(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+function easeOut(t){return 1-Math.pow(1-t,3)}
+function animNum(el,to,render,dur){if(!el)return;to=Math.round(to);const from=el._v==null?to:el._v;el._v=to;
+  if(prefersReduced||from===to){el.innerHTML=render(to);return}
+  dur=dur||460;const t0=performance.now();
+  requestAnimationFrame(function step(now){const p=Math.min(1,(now-t0)/dur);const v=Math.round(from+(to-from)*easeOut(p));el.innerHTML=render(v);if(p<1)requestAnimationFrame(step)});}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function plural(n,a,b,c){n=Math.abs(n)%100;const k=n%10;if(n>10&&n<20)return c;if(k>1&&k<5)return b;if(k===1)return a;return c}
+function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function vol(r){return (+r.len||0)*(+r.wid||0)*(+r.thk||0)/1e9*(+r.qty||0)*(+r.batches||1)}
+function rateFor(r){if(r.sys==="hour")return +rates.hour||0;if(r.sys==="shift")return +rates.shift||0;return (r.kind==="reglue"?+rates.reglue:+rates.board)||0}
+function calc(r){const rt=r.rate!=null?+r.rate:rateFor(r);
+  if(r.sys==="hour")return (+r.hours||0)*rt;
+  if(r.sys==="shift")return (+r.shifts||0)*rt;
+  if(r.sys==="piece")return vol(r)*rt;return 0}
+function rub(r){return Math.round(calc(r))}   /* округление на запись: суммы из них сходятся с итогами */
+function dayRecs(d){return records.filter(r=>r.date===d)}
+function monthRecs(m){return records.filter(r=>r.date.slice(0,7)===m)}
+function daysWorked(recs){return new Set(recs.map(r=>r.date)).size}
+
+/* однократная миграция: фиксируем текущую ставку в каждой старой записи */
+(function(){let mig=false;records.forEach(r=>{if(r.rate==null){r.rate=rateFor(r);mig=true}});if(mig)persist();})();
+
+/* static icons */
+document.getElementById("ic-days").innerHTML=icon("grid",24);
+document.getElementById("ic-log").innerHTML=icon("list",24);
+document.getElementById("ic-stats").innerHTML=icon("chart",24);
+document.getElementById("ic-set").innerHTML=icon("gear",24);
+document.getElementById("dPrev").innerHTML=icon("left",22);
+document.getElementById("dNext").innerHTML=icon("right",22);
+document.getElementById("mPrev").innerHTML=icon("left",20);
+document.getElementById("mNext").innerHTML=icon("right",20);
+document.getElementById("fabDay").innerHTML=icon("plus",28,"#16210A",2.4);
+
+/* ---------- DAYS ---------- */
+let today=iso(new Date());
+const MAXF=2;                              // сколько дней вперёд можно листать стрелкой
+function addDays(s,n){const d=new Date(s+"T00:00:00");d.setDate(d.getDate()+n);return iso(d)}
+function maxDay(){return addDays(today,MAXF)}
+let curDay=today;                          // выбранный день, без жёсткого окна в прошлое
+/* стрелка влево = прошлое (dir=1), вправо = будущее (dir=-1) */
+function goDay(dir){const n=addDays(curDay,-dir);if(n>maxDay())return;curDay=n;renderDay();}
+function jumpDay(s){if(!s)return;if(s>maxDay())s=maxDay();curDay=s;renderDay();}
+document.getElementById("dPrev").onclick=()=>goDay(1);
+document.getElementById("dNext").onclick=()=>goDay(-1);
+document.getElementById("todayBtn").onclick=()=>{curDay=today;renderDay()};
+document.getElementById("dJump").onchange=function(){jumpDay(this.value)};
+document.getElementById("fabDay").onclick=()=>openAdd(curDay);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState!=="visible")return;
+  const t=iso(new Date());if(t===today)return;const wasToday=curDay===today;today=t;if(wasToday)curDay=t;refresh();});
+
+function detail(r){
+  const rt=r.rate!=null?+r.rate:rateFor(r);
+  if(r.sys==="hour")return `${r.hours} ч × ${rt} ₽`;
+  if(r.sys==="shift")return `${r.shifts} ${plural(r.shifts,"смена","смены","смен")} × ${rt} ₽`;
+  if(r.sys==="piece")return `${r.kind==="board"?"Доска":"Переклейка"} · ${vol(r).toFixed(3)} м³`+(r.batches>1?` · ${r.batches} заклад.`:"");
+  return "";
+}
+function recRow(r,i){
+  const note=r.note?`<div class="recNote">${esc(r.note)}</div>`:"";
+  const S=sysInfo(r.sys);
+  const dl=(i!=null)?` style="animation-delay:${Math.min(i,10)*45}ms"`:"";
+  return `<div class="rec"${dl} onclick="openEdit('${r.id}')">
+    <div class="recDot" style="background:${S.s}">${icon(S.ic,22,S.c)}</div>
+    <div style="flex:1;min-width:0"><div class="recL1">${S.l}</div><div class="recL2">${detail(r)}</div>${note}</div>
+    <div class="recSum">${fmt(rub(r))}</div>
+    <span class="recChev">${icon("chev",18,"rgba(255,255,255,.4)")}</span></div>`;
+}
+function renderDay(){
+  const date=curDay;const d=new Date(date+"T00:00:00");
+  const recs=dayRecs(date);const total=recs.reduce((s,r)=>s+rub(r),0);
+  const sg={hour:0,shift:0,piece:0};recs.forEach(r=>sg[r.sys]+=rub(r));
+  let label;
+  if(date===today)label="Сегодня";
+  else if(date===addDays(today,-1))label="Вчера";
+  else if(date===addDays(today,1))label="Завтра";
+  else label=WD[d.getDay()];
+  document.getElementById("dayBig").textContent=label;
+  document.getElementById("daySub").textContent=`${d.getDate()} ${MN[d.getMonth()].toLowerCase()} ${d.getFullYear()}`;
+  const dj=document.getElementById("dJump");dj.value=date;dj.max=maxDay();
+  document.getElementById("dNext").disabled=date>=maxDay();
+  document.getElementById("dPrev").disabled=false;
+  document.getElementById("todayBtn").style.display=date===today?"none":"inline-flex";
+  animNum(document.getElementById("dayAmt"),total,v=>v.toLocaleString("ru-RU")+' <span class="cur">₽</span>');
+  let dots="";for(let i=-3;i<=3;i++){const dd=addDays(date,i);const future=dd>maxDay();dots+=`<span class="dot${i===0?" on":""}" style="${future?"opacity:.25":""}"></span>`;}
+  document.getElementById("dots").innerHTML=dots;
+  let tags=["hour","shift","piece"].filter(k=>sg[k]>0).map(k=>`<div class="tag" style="color:${SYS[k].c};background:${SYS[k].s}">${SYS[k].l} · ${fmt(sg[k])}</div>`).join("");
+  if(total===0)tags='<div class="tagMuted">Нет записей</div>';
+  document.getElementById("dayTags").innerHTML=tags;
+  document.getElementById("recCount").textContent=recs.length||"";
+  const list=document.getElementById("recList");
+  if(!recs.length){
+    const prev=addDays(date,-1);const prevRecs=dayRecs(prev);
+    const rb=prevRecs.length?`<button class="repeatBtn" onclick="repeatPrev('${prev}','${date}')">${icon("repeat",18,"#CBFF4D")} Повторить предыдущий день (${prevRecs.length})</button>`:"";
+    list.innerHTML=rb+'<div class="empty">Свайп вправо — предыдущие дни, влево — следующие. Тапни по дате сверху, чтобы перейти к любому дню.<br><br>Нажми + чтобы добавить запись.</div>';
+    return;
+  }
+  list.innerHTML=recs.map((r,i)=>recRow(r,i)).join("");
+}
+function repeatPrev(from,to){const src=dayRecs(from);if(!src.length)return;
+  src.forEach(r=>records.push({...r,id:uid(),date:to}));persist();renderDay();flash("Скопировано записей: "+src.length);}
+
+/* swipe on day scroll: right=>past, left=>future */
+(function(){const el=document.getElementById("daysScroll");let sx=0,sy=0,act=false;
+  el.addEventListener("touchstart",e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;act=true;},{passive:true});
+  el.addEventListener("touchend",e=>{if(!act)return;const dx=e.changedTouches[0].clientX-sx;const dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))goDay(dx>0?1:-1);act=false;});
+})();
+
+/* ---------- STATS ---------- */
+let mOff=0;
+function goMonth(dir){mOff=Math.min(0,mOff+dir);renderStats();}
+document.getElementById("mPrev").onclick=()=>goMonth(-1);
+document.getElementById("mNext").onclick=()=>goMonth(1);
+(function(){const el=document.getElementById("distCard");let sx=0,sy=0,act=false;
+  el.addEventListener("touchstart",e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;act=true;},{passive:true});
+  el.addEventListener("touchend",e=>{if(!act)return;const dx=e.changedTouches[0].clientX-sx;const dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))goMonth(dx>0?-1:1);act=false;});
+})();
+
+function ymLocal(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
+function renderStats(){
+  const base=new Date();const mDate=new Date(base.getFullYear(),base.getMonth()+mOff,1);
+  const viewMonth=ymLocal(mDate);const isCur=mOff===0;
+  document.getElementById("mLabel").textContent=`${MN[mDate.getMonth()]} ${mDate.getFullYear()}`;
+  document.getElementById("mNext").disabled=isCur;
+  const recs=monthRecs(viewMonth);const sg={hour:0,shift:0,piece:0};recs.forEach(r=>sg[r.sys]+=rub(r));
+  const tot=sg.hour+sg.shift+sg.piece;
+  animNum(document.getElementById("donutTotal"),tot,v=>fmt(v));
+  const R=66,SW=22,C=2*Math.PI*R;let acc=0;let svg=`<circle cx="90" cy="90" r="${R}" fill="none" stroke="#2a2d36" stroke-width="${SW}"/>`;
+  const active=["hour","shift","piece"].filter(k=>sg[k]>0);
+  if(active.length===1){
+    svg+=`<circle class="donut-seg" cx="90" cy="90" r="${R}" fill="none" stroke="${SYS[active[0]].c}" stroke-width="${SW}" stroke-dasharray="${prefersReduced?C:0} ${C}" data-dash="${C} 0"/>`;
+  }else if(tot>0)["hour","shift","piece"].forEach(k=>{const f=sg[k]/tot;if(f<=0)return;const len=f*C;const delay=Math.round(acc*260);
+    svg+=`<circle class="donut-seg" cx="90" cy="90" r="${R}" fill="none" stroke="${SYS[k].c}" stroke-width="${SW}" stroke-dasharray="${prefersReduced?len:0} ${C}" stroke-dashoffset="${-acc*C}" transform="rotate(-90 90 90)" stroke-linecap="round" data-dash="${len} ${C}" style="transition-delay:${delay}ms"/>`;acc+=f;});
+  const donutEl=document.getElementById("donut");donutEl.innerHTML=svg;
+  if(!prefersReduced)requestAnimationFrame(()=>donutEl.querySelectorAll(".donut-seg").forEach(c=>{c.style.strokeDasharray=c.dataset.dash}));
+  document.getElementById("legend").innerHTML=["hour","shift","piece"].map(k=>{const pct=tot>0?Math.round(sg[k]/tot*100):0;
+    return `<div class="legrow"><span class="sw" style="background:${SYS[k].c}"></span><span class="nm">${SYS[k].l} · ${pct}%</span><span class="vl">${fmt(sg[k])}</span></div>`}).join("");
+
+  // цель месяца
+  const gc=document.getElementById("goalCard");
+  if(goal>0){gc.style.display="";const p=tot/goal;
+    document.getElementById("goalPct").textContent=Math.round(p*100)+"%";
+    document.getElementById("goalBar").style.width=Math.min(100,p*100)+"%";
+    document.getElementById("goalBar").style.background=p>=1?"linear-gradient(90deg,#CBFF4D,#7AA2FF)":"linear-gradient(90deg,var(--acc-d),var(--acc-b))";
+    document.getElementById("goalText").textContent=p>=1?`Цель закрыта, сверху ${fmt(tot-goal)}`:`${fmt(tot)} из ${fmt(goal)} · осталось ${fmt(goal-tot)}`;
+  }else gc.style.display="none";
+
+  // среднее и прогноз
+  const dw=daysWorked(recs);
+  const avgDay=dw?tot/dw:0;
+  const shInM=recs.filter(r=>r.sys==="shift").reduce((s,r)=>s+(+r.shifts||0),0);
+  const avgShift=shInM?sg.shift/shInM:0;
+  const dim=new Date(mDate.getFullYear(),mDate.getMonth()+1,0).getDate();
+  const elapsed=isCur?base.getDate():dim;
+  const proj=elapsed?tot/elapsed*dim:0;
+  const aRows=[["Рабочих дней",dw||"—"],["Средний день",dw?fmt(avgDay):"—"],["Средняя смена",shInM?fmt(avgShift):"—"]];
+  if(isCur)aRows.push(["Прогноз месяца",tot?fmt(proj):"—"]);
+  document.getElementById("avgRows").innerHTML=aRows.map(r=>`<div class="totrow"><span class="k">${r[0]}</span><span class="v">${r[1]}</span></div>`).join("");
+
+  // динамика — 6 месяцев, заканчивая просматриваемым; выбранный подсвечен
+  const months=[];for(let i=5;i>=0;i--){const dd=new Date(mDate.getFullYear(),mDate.getMonth()-i,1);months.push(ymLocal(dd));}
+  const sums=months.map(m=>monthRecs(m).reduce((s,r)=>s+rub(r),0));const max=Math.max(...sums,1);
+  const barsEl=document.getElementById("bars");
+  barsEl.innerHTML=months.map((m,i)=>{const sel=m===viewMonth;const v=sums[i];const h=Math.max(4,v/max*100);
+    return `<div class="col"><div class="bval">${v>0?kfmt(v):""}</div><div class="barWrap"><div class="bar${sel?" sel":""}" data-h="${h}" style="height:${prefersReduced?h+"%":"0%"};transition-delay:${i*55}ms"></div></div><div class="bl${sel?" sel":""}">${MNs[+m.split("-")[1]-1]}</div></div>`}).join("");
+  if(!prefersReduced)requestAnimationFrame(()=>barsEl.querySelectorAll(".bar").forEach(b=>{b.style.height=b.dataset.h+"%"}));
+
+  // итоги
+  const at=records.reduce((s,r)=>s+rub(r),0);
+  const hrs=records.filter(r=>r.sys==="hour").reduce((s,r)=>s+(+r.hours||0),0);
+  const shs=records.filter(r=>r.sys==="shift").reduce((s,r)=>s+(+r.shifts||0),0);
+  const vl=records.filter(r=>r.sys==="piece").reduce((s,r)=>s+vol(r),0);
+  const rows=[["Всего заработано",fmt(at),"#CBFF4D"],["Записей",records.length],["Часов",hrs.toLocaleString("ru-RU")],["Смен",shs],["Объём сделки",vl.toFixed(3)+" м³"]];
+  document.getElementById("allTime").innerHTML=rows.map(r=>`<div class="totrow"><span class="k">${r[0]}</span><span class="v" style="color:${r[2]||"var(--ink)"}">${r[1]}</span></div>`).join("");
+
+  // по годам
+  const yrs={};records.forEach(r=>{const y=r.date.slice(0,4);yrs[y]=(yrs[y]||0)+rub(r)});
+  const yk=Object.keys(yrs).sort().reverse();
+  document.getElementById("byYear").innerHTML=yk.length?yk.map(y=>`<div class="totrow"><span class="k">${y}</span><span class="v">${fmt(yrs[y])}</span></div>`).join(""):'<div class="empty" style="padding:8px 0">Пока нет данных</div>';
+}
+
+/* ---------- JOURNAL ---------- */
+let _logT;
+function onLogSearch(){clearTimeout(_logT);_logT=setTimeout(renderLog,120)}
+function renderLog(){
+  const q=(document.getElementById("logSearch").value||"").trim().toLowerCase();
+  let rs=records.slice().sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
+  if(q)rs=rs.filter(r=>{const kind=r.kind==="board"?"доска":r.kind==="reglue"?"переклейка":"";
+    return (`${SYS[r.sys].l} ${kind} ${r.note||""} ${r.date}`).toLowerCase().includes(q)});
+  const box=document.getElementById("logList");
+  if(!rs.length){box.innerHTML='<div class="empty">'+(q?"Ничего не найдено":"Записей пока нет")+'</div>';return}
+  let html="",cur="";
+  rs.forEach(r=>{
+    if(r.date!==cur){cur=r.date;const d=new Date(cur+"T00:00:00");
+      const sum=dayRecs(cur).reduce((s,x)=>s+rub(x),0);
+      html+=`<div class="logHead"><span class="ld">${d.getDate()} ${MNs[d.getMonth()]} ${d.getFullYear()}, ${WD[d.getDay()].toLowerCase()}</span><span class="ls">${fmt(sum)}</span></div>`;}
+    html+=recRow(r);
+  });
+  box.innerHTML=html;
+}
+
+/* ---------- nav ---------- */
+function go(s){
+  ["days","log","stats","set"].forEach(x=>{document.getElementById("scr-"+x).classList.toggle("hidden",x!==s);
+    const n=document.getElementById("nav-"+x);if(n)n.classList.toggle("active",x===s)});
+  if(s==="days")renderDay();if(s==="log")renderLog();if(s==="stats")renderStats();if(s==="set")fillRates();
+}
+function activeScreen(){const cur=document.querySelector("nav button.active");return cur?cur.id.slice(4):"days"}
+function refresh(){const a=activeScreen();if(a==="log")renderLog();else if(a==="stats")renderStats();else renderDay();}
+
+/* ---------- settings ---------- */
+function fillRates(){r_hour.value=rates.hour;r_shift.value=rates.shift;r_board.value=rates.board;r_reglue.value=rates.reglue;r_goal.value=goal||"";
+  pendingImport=null;const ic=document.getElementById("importConfirm");if(ic)ic.style.display="none"}
+function saveRates(){const num=v=>+((v+"").replace(",","."))||0;
+  rates={hour:num(r_hour.value),shift:num(r_shift.value),board:num(r_board.value),reglue:num(r_reglue.value)};goal=num(r_goal.value);persist();flash("Сохранено")}
+function exportData(){const b=new Blob([JSON.stringify({records,rates,goal},null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="zarplata_backup_"+iso(new Date())+".json";a.click()}
+let pendingImport=null;
+function importData(e){const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{const o=JSON.parse(rd.result);
+    if(!o||!Array.isArray(o.records)){flash("Не похоже на резервную копию");return}
+    pendingImport=o;
+    document.getElementById("importConfirmText").textContent=
+      "Заменить текущие данные ("+records.length+" зап.) данными из файла ("+o.records.length+" зап.)? Текущие можно вернуть кнопкой «Отменить» после загрузки.";
+    document.getElementById("importConfirm").style.display="";
+  }catch(x){flash("Ошибка файла")}finally{e.target.value=""}};rd.readAsText(f)}
+function cancelImport(){pendingImport=null;document.getElementById("importConfirm").style.display="none"}
+function confirmImport(){
+  if(!pendingImport)return;const o=pendingImport;pendingImport=null;
+  document.getElementById("importConfirm").style.display="none";
+  const snap=JSON.parse(JSON.stringify({records,rates,goal}));
+  const valid=o.records.filter(r=>r&&typeof r.date==="string"&&(r.sys==="hour"||r.sys==="shift"||r.sys==="piece"));
+  const skipped=o.records.length-valid.length;
+  records=valid.map(r=>r.id?r:{...r,id:uid()});
+  if(o.rates)rates=o.rates;if(o.goal!=null)goal=o.goal;
+  records.forEach(r=>{if(r.rate==null)r.rate=rateFor(r)});
+  persist();renderDay();fillRates();
+  flash("Загружено: "+records.length+(skipped?" (пропущено "+skipped+")":""),()=>{records=snap.records;rates=snap.rates;goal=snap.goal;persist();renderDay();fillRates()});
+}
+function flash(t,undo){const old=document.querySelector(".toast");if(old)old.remove();
+  const f=document.createElement("div");f.className="toast";
+  f.innerHTML=`<span>${t}</span>`+(undo?`<button class="toastU">Отменить</button>`:"");
+  document.body.appendChild(f);
+  function dismiss(){if(prefersReduced){f.remove();return}f.classList.add("out");setTimeout(()=>f.remove(),200)}
+  const to=setTimeout(dismiss,undo?5000:1800);
+  if(undo){f.querySelector(".toastU").onclick=()=>{clearTimeout(to);dismiss();undo()}}}
+
+/* ---------- popup flow ---------- */
+let draft={},step=0,editId=null,origRec=null,confirmDel=false;
+const overlay=document.getElementById("overlay"),sheet=document.getElementById("sheet");
+overlay.addEventListener("click",e=>{if(e.target===overlay)closeP()});
+function closeP(){
+  if(prefersReduced){overlay.classList.remove("show");return}
+  overlay.classList.add("closing");sheet.classList.add("closing");
+  setTimeout(()=>{overlay.classList.remove("show","closing");sheet.classList.remove("closing")},250);
+}
+function openAdd(date){draft={date:date};step=0;editId=null;origRec=null;confirmDel=false;overlay.classList.add("show");render()}
+function openEdit(id){const r=records.find(x=>x.id===id);if(!r)return;draft={...r};origRec={sys:r.sys,kind:r.kind};editId=id;confirmDel=false;step="edit";overlay.classList.add("show");render()}
+function bar(n){let s="";for(let i=0;i<3;i++)s+=`<i class="${i<=n?"on":""}"></i>`;return s}
+
+/* read inputs into draft WITHOUT re-rendering (keeps keyboard focus) */
+function readData(){
+  const el=id=>document.getElementById(id);
+  const gn=id=>{const e=el(id);return e?e.value.replace(",","."):undefined};
+  const gt=id=>{const e=el(id);return e?e.value:undefined};
+  if(draft.sys==="hour")draft.hours=gn("d_hours");
+  if(draft.sys==="shift")draft.shifts=gn("d_shifts");
+  if(draft.sys==="piece"){draft.len=gn("d_len");draft.wid=gn("d_wid");draft.thk=gn("d_thk");draft.qty=gn("d_qty");draft.batches=gn("d_batches");}
+  const nt=gt("d_note");if(nt!==undefined)draft.note=nt;
+}
+function noteField(){return `<div class="fieldLbl">Заметка (необязательно)</div>
+  <input type="text" id="d_note" value="${draft.note?esc(draft.note):""}" placeholder="объект, что за работа…" maxlength="80">`}
+function dataFields(){
+  if(draft.sys==="hour")return `<div class="fieldLbl">Количество часов</div>
+    <input type="text" inputmode="decimal" id="d_hours" value="${draft.hours||""}" placeholder="напр. 8" oninput="live()">`+liveBox(false)+noteField();
+  if(draft.sys==="shift")return `<div class="fieldLbl">Количество смен</div>
+    <input type="number" inputmode="numeric" id="d_shifts" value="${draft.shifts??1}" placeholder="1" oninput="live()">`+liveBox(false)+noteField();
+  return `<div class="seg2">
+      <button class="${draft.kind==="board"?"on":""}" onclick="setKind('board')">Доска</button>
+      <button class="${draft.kind==="reglue"?"on":""}" onclick="setKind('reglue')">Переклейка</button></div>
+    <div class="fieldLbl">Размеры полубруса, мм</div>
+    <div class="pick3">
+      <input type="text" inputmode="decimal" id="d_len" value="${draft.len||""}" placeholder="Длина" oninput="live()">
+      <input type="text" inputmode="decimal" id="d_wid" value="${draft.wid||""}" placeholder="Ширина" oninput="live()">
+      <input type="text" inputmode="decimal" id="d_thk" value="${draft.thk||""}" placeholder="Толщ." oninput="live()"></div>
+    <div class="row2">
+      <div><div class="fieldLbl">Полубрусов</div><input type="number" inputmode="numeric" id="d_qty" value="${draft.qty||""}" placeholder="напр. 16" oninput="live()"></div>
+      <div><div class="fieldLbl">Закладок</div><input type="number" inputmode="numeric" id="d_batches" value="${draft.batches??1}" placeholder="напр. 3" oninput="live()"></div>
+    </div>
+    <div class="formulaHint" id="formulaHint"></div>`+liveBox(true)+noteField();
+}
+function liveBox(piece){return `<div class="liveBox"><div>${piece?'<div class="cvol" id="vlbl">Объём 0 м³</div>':""}<div class="cl">Сумма за запись</div></div><div class="cv" id="livesum">0 ₽</div></div>`}
+function live(){
+  readData();
+  const ls=document.getElementById("livesum");if(ls)ls.textContent=fmt(calc(draft));
+  const v=document.getElementById("vlbl");if(v)v.textContent="Объём "+vol(draft).toFixed(3)+" м³";
+  const fh=document.getElementById("formulaHint");if(fh)fh.textContent=`${draft.len||"·"}×${draft.wid||"·"}×${draft.thk||"·"} мм · ${draft.qty||0} шт × ${draft.batches||1} заклад.`;
+}
+function setKind(k){readData();draft.kind=k;render()}
+
+function render(){
+  if(step===0){
+    sheet.innerHTML=`<div class="grip"></div><div class="steps">${bar(0)}</div>
+      <div class="qh">Дата рабочего дня</div><div class="qs">Когда выполнена работа</div>
+      <input type="date" id="d_date" value="${draft.date}" max="${maxDay()}">
+      <button class="primBtn" onclick="draft.date=document.getElementById('d_date').value;step=1;render()">Далее →</button>`;
+  }else if(step===1){
+    sheet.innerHTML=`<div class="grip"></div><div class="steps">${bar(1)}</div>
+      <div class="qh">Система оплаты</div><div class="qs">Выбери форму расчёта</div>`+
+      ["hour","shift","piece"].map(k=>`<button class="optBtn" onclick="pickSys('${k}')">
+        <span class="optIc" style="background:${SYS[k].s}">${icon(SYS[k].ic,22,SYS[k].c)}</span>
+        <div><div class="optL">${SYS[k].l}</div><div class="optD">${k==="hour"?rates.hour+" ₽ / час":k==="shift"?rates.shift+" ₽ / смена":"объём × ставка"}</div></div></button>`).join("")+
+      `<button class="ghostBtn" style="flex:none;width:100%" onclick="step=0;render()">← Назад</button>`;
+  }else if(step===2){
+    sheet.innerHTML=`<div class="grip"></div><div class="steps">${bar(2)}</div>
+      <div class="qh">${SYS[draft.sys].l}</div><div class="qs">Введи данные</div>${dataFields()}
+      <div class="btnrow"><button class="ghostBtn" onclick="readData();step=1;render()">← Назад</button>
+      <button class="primBtn" style="flex:1;margin-top:6px" onclick="commit()">Сохранить</button></div>`;
+    live();
+  }else if(step==="edit"){
+    const delArea=confirmDel
+      ? `<div class="delConfirm"><span class="dcq">Удалить запись безвозвратно?</span>
+          <div class="btnrow"><button class="ghostBtn" onclick="confirmDel=false;render()">Нет</button>
+          <button class="delBtn" style="margin-top:6px;flex:1" onclick="delRec()">Да, удалить</button></div></div>`
+      : `<button class="delBtn" onclick="confirmDel=true;render()">${icon("trash",18,"#FF6B5B")} Удалить запись</button>`;
+    sheet.innerHTML=`<div class="grip"></div><div class="qh">Редактировать</div><div class="qs">Измени, продублируй или удали</div>
+      <div class="fieldLbl">Дата</div><input type="date" id="d_date" value="${draft.date}" max="${maxDay()}" onchange="draft.date=this.value">
+      <div class="seg2">`+["hour","shift","piece"].map(k=>`<button class="${draft.sys===k?"on":""}" onclick="editSys('${k}')">${SYS[k].l}</button>`).join("")+`</div>
+      ${dataFields()}
+      <div class="btnrow"><button class="ghostBtn" onclick="closeP()">Отмена</button>
+      <button class="primBtn" style="flex:1;margin-top:6px" onclick="commit()">Сохранить</button></div>
+      <button class="dupBtn" onclick="dupRec()">${icon("copy",18,"#CBFF4D")} Дублировать на этот день</button>
+      ${delArea}`;
+    live();
+  }
+}
+function pickSys(k){draft.sys=k;if(k==="piece"){if(!draft.kind)draft.kind="board";if(draft.batches==null)draft.batches=1;}step=2;render()}
+function editSys(k){readData();const dt=document.getElementById("d_date");if(dt)draft.date=dt.value;draft.sys=k;if(k==="piece"){if(!draft.kind)draft.kind="board";if(draft.batches==null)draft.batches=1;}render()}
+function stampRate(){
+  // новая запись — текущая ставка; при правке пересчитываем только если сменилась система или вид
+  if(!editId){draft.rate=rateFor(draft);return}
+  if(!origRec||draft.sys!==origRec.sys||(draft.sys==="piece"&&draft.kind!==origRec.kind)||draft.rate==null)draft.rate=rateFor(draft);
+}
+function cleanRecord(d){
+  const o={date:d.date,sys:d.sys,rate:d.rate};
+  if(d.note)o.note=d.note;
+  if(d.sys==="hour")o.hours=d.hours;
+  else if(d.sys==="shift")o.shifts=d.shifts;
+  else if(d.sys==="piece"){o.kind=d.kind;o.len=d.len;o.wid=d.wid;o.thk=d.thk;o.qty=d.qty;o.batches=d.batches}
+  return o;
+}
+function commit(){readData();const dt=document.getElementById("d_date");if(dt)draft.date=dt.value;stampRate();
+  const rec=cleanRecord(draft);
+  if(editId){const i=records.findIndex(r=>r.id===editId);records[i]={...rec,id:editId}}else records.push({...rec,id:uid()});
+  persist();closeP();refresh();flash(editId?"Изменено":"Добавлено")}
+function dupRec(){readData();const dt=document.getElementById("d_date");if(dt)draft.date=dt.value;stampRate();
+  records.push({...cleanRecord(draft),id:uid()});persist();closeP();refresh();flash("Дубликат создан")}
+function delRec(){const snap=JSON.parse(JSON.stringify(records));const id=editId;
+  records=records.filter(r=>r.id!==id);persist();closeP();refresh();
+  flash("Удалено",()=>{records=snap;persist();refresh()})}
+
+/* swipe down to close sheet */
+let ssy=0;sheet.addEventListener("touchstart",e=>ssy=e.touches[0].clientY,{passive:true});
+sheet.addEventListener("touchmove",e=>{if(e.touches[0].clientY-ssy>90&&sheet.scrollTop<=0)closeP()},{passive:true});
+
+/* ---------- init ---------- */
+if(window.navigator.standalone||window.matchMedia("(display-mode: standalone)").matches){
+  const t=document.getElementById("installTip");if(t)t.style.display="none";}
+
+renderDay();
+if("serviceWorker" in navigator && location.protocol.indexOf("http")===0){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
+</script>
+</body>
+</html>
