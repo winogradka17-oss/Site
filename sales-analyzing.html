@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Sales Analyzing</title>
+  <meta name="description" content="Sales analyzing — gross & net profit." />
+
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#191919" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Stores" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-180.png" />
+  <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg" />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <div class="app">
+
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="sb-right">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".4"/></svg>
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2C5.6 2 3 3.1 1 4.9L2.4 6.4C4 4.9 6.1 4 8.5 4s4.5.9 6.1 2.4L16 4.9C14 3.1 11.4 2 8.5 2Zm0 4c-1.6 0-3.1.6-4.2 1.6l1.5 1.5c.7-.7 1.7-1.1 2.7-1.1s2 .4 2.7 1.1l1.5-1.5C11.6 6.6 10.1 6 8.5 6Zm0 4-1.6 1.6c.4.4 1 .7 1.6.7s1.2-.3 1.6-.7L8.5 10Z"/></svg>
+        <svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x="1" y="1" width="21" height="10" rx="3" stroke="currentColor" opacity=".5"/><rect x="3" y="3" width="15" height="6" rx="1.5" fill="#cdf42a"/><rect x="23" y="4" width="2" height="4" rx="1" fill="currentColor" opacity=".5"/></svg>
+      </span>
+    </div>
+
+    <div class="screen">
+
+      <!-- Top bar -->
+      <div class="topbar">
+        <a class="icon-btn" href="index.html" aria-label="Back">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </a>
+        <div class="title grow" style="margin-left:4px">Sales<br>Analyzing</div>
+        <button class="icon-btn solid" aria-label="Menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="6" r="1.7"/><circle cx="12" cy="6" r="1.7"/><circle cx="18" cy="6" r="1.7"/><circle cx="6" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="18" cy="12" r="1.7"/><circle cx="6" cy="18" r="1.7"/><circle cx="12" cy="18" r="1.7"/><circle cx="18" cy="18" r="1.7"/></svg>
+        </button>
+      </div>
+
+      <!-- Purchase orders -->
+      <div class="mini-grid">
+        <div class="mini">
+          <div class="mini-head">
+            <div class="mini-name">Purchase<br>Orders</div>
+            <span class="arrow-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+          </div>
+          <div class="mini-value">2<small>sent</small></div>
+        </div>
+        <div class="mini">
+          <div class="mini-head">
+            <div class="mini-name">Purchase<br>Orders</div>
+            <span class="arrow-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+          </div>
+          <div class="mini-value">3<small>dispatched</small></div>
+        </div>
+      </div>
+
+      <!-- Profit cards -->
+      <div class="stack" style="margin-top:2px">
+        <!-- Gross profit -->
+        <div class="card profit-card profit-blue rings on-color">
+          <div class="profit-name">Gross Profit</div>
+          <div class="metric"><span class="cur">$</span>177,349.50</div>
+          <div class="subtle">$44,357.23 more than this<br>time last month.</div>
+        </div>
+
+        <!-- Floating link button -->
+        <button class="link-fab" style="--pos:50%" aria-label="Details">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        </button>
+
+        <!-- Net profit -->
+        <div class="card profit-card profit-lime rings">
+          <div class="profit-name">Net Profit</div>
+          <div class="metric"><span class="cur">$</span>331,224.74</div>
+          <div class="subtle">$44,357.23 more than this<br>time last month.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <nav class="tabbar">
+      <a href="index.html">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 4l8 7"/><path d="M6 10v9h12v-9"/></svg>
+        <span>Home</span><span class="dot"></span>
+      </a>
+      <a href="sales-analyzing.html" class="active">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        <span>Analyzing</span><span class="dot"></span>
+      </a>
+      <a href="your-sales.html">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 6-7"/><path d="M17 5h4v4"/></svg>
+        <span>Sales</span><span class="dot"></span>
+      </a>
+      <a href="#">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg>
+        <span>Inventory</span><span class="dot"></span>
+      </a>
+    </nav>
+
+  </div>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

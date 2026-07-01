@@ -1,0 +1,513 @@
+/* =========================================================================
+   Sales Dashboard — Design System
+   A dark, modern mobile dashboard UI recreated as a PWA.
+   Reuse these tokens & components to build new pages in the same style.
+   ========================================================================= */
+
+/* ---- Fonts ---- */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500;1,600&family=Instrument+Serif:ital@0;1&display=swap');
+
+/* ---- Design Tokens ---- */
+:root {
+  /* Core palette */
+  --bg:            #191919;
+  --bg-elevated:   #232323;
+  --card:          #262626;
+  --card-2:        #2d2d2d;
+  --stroke:        rgba(255, 255, 255, 0.08);
+  --stroke-strong: rgba(255, 255, 255, 0.16);
+
+  /* Accents */
+  --lime:          #cdf42a;
+  --lime-bright:   #d6ff3d;
+  --lime-deep:     #b6e000;
+
+  /* Blue gradient family */
+  --blue-1:        #8fa2ee;
+  --blue-2:        #6478d6;
+  --blue-3:        #4a5cc0;
+
+  /* Text */
+  --text:          #f4f4f4;
+  --text-dim:      rgba(255, 255, 255, 0.55);
+  --text-faint:    rgba(255, 255, 255, 0.38);
+  --on-lime:       #16210a;
+  --on-blue:       #ffffff;
+
+  /* Shape */
+  --radius-xl:     34px;
+  --radius-lg:     26px;
+  --radius-md:     20px;
+  --radius-sm:     14px;
+
+  /* Layout */
+  --app-max:       440px;
+  --pad:           22px;
+
+  --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --serif: 'Instrument Serif', Georgia, serif;
+}
+
+/* ---- Reset ---- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font);
+  background: #0e0e0e;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+}
+
+a { color: inherit; text-decoration: none; -webkit-tap-highlight-color: transparent; }
+button { font-family: inherit; cursor: pointer; }
+img { display: block; }
+
+/* =========================================================================
+   App shell — phone-shaped viewport, centered on desktop, full-bleed on mobile
+   ========================================================================= */
+.app {
+  position: relative;
+  width: 100%;
+  max-width: var(--app-max);
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 480px) {
+  body { display: flex; align-items: center; justify-content: center; padding: 24px 0; }
+  .app {
+    min-height: 900px;
+    max-height: 940px;
+    border-radius: 46px;
+    box-shadow: 0 40px 120px rgba(0, 0, 0, 0.6), 0 0 0 10px #050505, 0 0 0 12px #2a2a2a;
+    overflow-y: auto;
+  }
+  .app::-webkit-scrollbar { width: 0; }
+}
+
+/* ---- Status bar (faux iOS) ---- */
+.statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px var(--pad) 4px;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+  flex: 0 0 auto;
+  padding-top: calc(14px + env(safe-area-inset-top));
+}
+.statusbar .sb-right { display: flex; align-items: center; gap: 7px; }
+.statusbar .sb-right svg { display: block; }
+
+/* ---- Generic screen padding ---- */
+.screen {
+  padding: 4px var(--pad) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex: 1 1 auto;
+}
+
+/* =========================================================================
+   Top bar (avatar / back / title / actions)
+   ========================================================================= */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.topbar .title {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.5px;
+}
+
+.avatar {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.25);
+}
+
+/* Round icon button */
+.icon-btn {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s ease, transform .1s ease;
+}
+.icon-btn:active { transform: scale(0.94); }
+.icon-btn.solid { background: var(--card-2); border-color: transparent; }
+.actions-group { display: flex; gap: 10px; }
+
+/* =========================================================================
+   Cards
+   ========================================================================= */
+.card {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  border: 1px solid var(--stroke);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-hero {
+  border-radius: var(--radius-xl);
+  padding: 26px 24px 24px;
+  color: var(--on-blue);
+  background:
+    radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,0.16), transparent 55%),
+    linear-gradient(160deg, var(--blue-1) 0%, var(--blue-2) 48%, var(--blue-3) 100%);
+}
+
+/* Decorative concentric rings (top-right) used on hero cards */
+.rings::after {
+  content: "";
+  position: absolute;
+  right: -60px; top: -70px;
+  width: 260px; height: 260px;
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(circle at center,
+      rgba(255,255,255,0.10) 0 1px,
+      transparent 1px 26px);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* =========================================================================
+   Money / metric typography
+   ========================================================================= */
+.eyebrow {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+.metric {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  line-height: 1.05;
+}
+.metric .cur { font-weight: 600; opacity: 0.85; margin-right: 2px; }
+.metric-lg { font-size: 40px; }
+.subtle {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+.on-color .subtle { color: rgba(255,255,255,0.72); }
+
+/* =========================================================================
+   Month selector pills
+   ========================================================================= */
+.months {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px 0;
+}
+.months::-webkit-scrollbar { display: none; }
+.month {
+  flex: 0 0 auto;
+  min-width: 52px;
+  text-align: center;
+  padding: 9px 6px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,0.03);
+  text-transform: lowercase;
+  transition: all .2s ease;
+}
+.month.dashed { border-style: dashed; border-color: var(--stroke-strong); background: transparent; }
+.month.active {
+  background: var(--lime);
+  color: var(--on-lime);
+  border-color: transparent;
+  box-shadow: 0 6px 18px rgba(205,244,42,0.28);
+}
+/* Pill variant for the light hero (blue) card */
+.months.on-hero .month { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.22); background: transparent; }
+.months.on-hero .month.dashed { border-style: dashed; }
+.months.on-hero .month.active { background: var(--lime); color: var(--on-lime); }
+
+/* =========================================================================
+   Section label
+   ========================================================================= */
+.section-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 2px 0 -2px;
+}
+
+/* =========================================================================
+   Sales target progress bar
+   ========================================================================= */
+.progress {
+  --value: 62%;
+  position: relative;
+  height: 30px;
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(115deg,
+      rgba(255,255,255,0.05) 0 10px,
+      rgba(255,255,255,0.02) 10px 20px);
+  border: 1px solid var(--stroke);
+  overflow: hidden;
+}
+.progress .fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--value);
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--lime-deep), var(--lime-bright));
+  box-shadow: 0 0 24px rgba(205,244,42,0.35);
+}
+.progress .knob {
+  position: absolute;
+  top: 50%;
+  left: var(--value);
+  transform: translate(-50%, -50%);
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #eaffa0, var(--lime-deep));
+  border: 3px solid #1c2408;
+  display: flex; align-items: center; justify-content: center;
+}
+.progress .knob::before {
+  content: "";
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: #1c2408;
+  box-shadow: 0 -5px 0 #1c2408, 0 5px 0 #1c2408;
+}
+
+/* =========================================================================
+   Grid of tiles (Sales Analyzing / View Inventory)
+   ========================================================================= */
+.tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.tile {
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  min-height: 128px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform .12s ease, background .2s ease;
+}
+.tile:active { transform: scale(0.98); }
+.tile .tile-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.tile .tile-name { font-size: 15px; font-weight: 600; line-height: 1.2; max-width: 8ch; }
+.tile .tile-value { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+.tile .tile-value .unit { font-size: 13px; font-weight: 600; color: var(--text-dim); margin-left: 3px; }
+.tile .tile-value.accent { color: var(--lime); }
+
+/* small arrow chip */
+.arrow-chip {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--stroke);
+  color: var(--text);
+  flex: 0 0 auto;
+}
+.arrow-chip.on-color { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.28); color:#fff; }
+.arrow-chip.dark { background: #1b1b1b; border-color: transparent; color: #fff; }
+
+/* =========================================================================
+   Profit cards (screen 2)
+   ========================================================================= */
+.profit-blue {
+  color: var(--on-blue);
+  background:
+    radial-gradient(130% 100% at 85% 10%, rgba(255,255,255,0.18), transparent 55%),
+    linear-gradient(155deg, var(--blue-1), var(--blue-2) 60%, var(--blue-3));
+  border: none;
+}
+.profit-lime {
+  color: var(--on-lime);
+  background:
+    radial-gradient(120% 100% at 85% 10%, rgba(255,255,255,0.35), transparent 55%),
+    linear-gradient(150deg, var(--lime-bright), var(--lime) 65%, var(--lime-deep));
+  border: none;
+}
+.profit-lime .subtle { color: rgba(22,33,10,0.62); }
+.profit-lime.rings::after { background: repeating-radial-gradient(circle at center, rgba(22,33,10,0.08) 0 1px, transparent 1px 26px); }
+.profit-card {
+  padding: 24px;
+  border-radius: var(--radius-lg);
+}
+.profit-card .profit-name { font-size: 21px; font-weight: 600; margin-bottom: 22px; }
+.profit-card .metric { margin-bottom: 12px; }
+
+/* The floating circular button that sits between the two profit cards */
+.stack { position: relative; display: flex; flex-direction: column; gap: 14px; }
+.link-fab {
+  position: absolute;
+  left: 50%;
+  top: var(--pos, 50%);
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  background: #171717;
+  border: 5px solid var(--bg);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* =========================================================================
+   Small stat cards (Purchase Orders row on screen 2)
+   ========================================================================= */
+.mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.mini {
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-md);
+  padding: 16px 16px 14px;
+}
+.mini .mini-head { display: flex; align-items: flex-start; justify-content: space-between; }
+.mini .mini-name { font-size: 15px; font-weight: 600; line-height: 1.15; }
+.mini .mini-value { margin-top: 26px; font-size: 24px; font-weight: 700; }
+.mini .mini-value small { font-size: 13px; color: var(--text-dim); font-weight: 500; margin-left: 4px; }
+
+/* =========================================================================
+   Segmented control (All / Year / Month / Week)
+   ========================================================================= */
+.segment {
+  display: flex;
+  gap: 8px;
+  background: transparent;
+}
+.segment button {
+  flex: 1;
+  padding: 12px 4px;
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 600;
+  transition: all .2s ease;
+}
+.segment button.active {
+  background: #fff;
+  color: #141414;
+  border-color: transparent;
+}
+
+/* =========================================================================
+   Chart card (screen 3)
+   ========================================================================= */
+.chart-card { padding: 20px 18px 14px; }
+.chart-tags { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.chart-tags .tag {
+  font-size: 13px; font-weight: 600;
+  padding: 6px 12px; border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--stroke);
+  color: var(--text-dim);
+}
+.chart-tags .tag.lime { background: var(--lime); color: var(--on-lime); border-color: transparent; }
+.chart-wrap { position: relative; width: 100%; }
+.chart-wrap svg { width: 100%; display: block; }
+.chart-nav { display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--text-faint); margin-top: 4px; }
+
+/* =========================================================================
+   Wide stat rows (Average Sale Value etc.) on blue card
+   ========================================================================= */
+.stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 0;
+}
+.stat-row + .stat-row { border-top: 1px solid rgba(255,255,255,0.18); }
+.stat-row .stat-name { font-size: 14px; font-weight: 600; opacity: 0.9; }
+.stat-row .stat-figure { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin: 4px 0 2px; }
+
+/* =========================================================================
+   Bottom navigation (added for a real, multi-page PWA)
+   ========================================================================= */
+.tabbar {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, var(--bg) 72%, transparent);
+}
+.tabbar a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-faint);
+  padding: 6px 10px;
+  border-radius: 14px;
+}
+.tabbar a.active { color: var(--lime); }
+.tabbar a .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0; }
+.tabbar a.active .dot { opacity: 1; }
+
+/* Utilities */
+.row { display: flex; align-items: center; }
+.between { justify-content: space-between; }
+.gap-6 { gap: 6px; }
+.gap-10 { gap: 10px; }
+.mt-2 { margin-top: 8px; }
+.mt-4 { margin-top: 16px; }
+.grow { flex: 1; }
+.italic-serif { font-family: var(--serif); font-style: italic; font-weight: 400; }
