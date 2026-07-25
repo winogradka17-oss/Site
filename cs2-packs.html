@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>CS2 Pack Opening</title>
+  <meta name="description" content="Open CS2 player packs and pull FUT-style Bronze, Silver, Gold and Icon cards." />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#0e0e0e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CS2 Packs" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-180.png" />
+  <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg" />
+
+  <link rel="stylesheet" href="assets/css/packs.css" />
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#cdf42a" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="8"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/><circle cx="12" cy="12" r="1.6" fill="#cdf42a" stroke="none"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <b>CS2 PACKS</b>
+          <span>Card Collector</span>
+        </div>
+      </div>
+
+      <button class="icon-btn" id="claim" aria-label="Claim free coins" title="Claim free coins">
+        <span style="font-size:12px;font-weight:800;color:var(--lime)">+500</span>
+      </button>
+      <div class="coins"><span class="coin"></span><span id="coins-val">0</span></div>
+      <button class="icon-btn" id="mute" aria-label="Toggle sound"></button>
+    </header>
+
+    <!-- Tabs -->
+    <div class="center">
+      <div class="tabs">
+        <button id="tab-store" class="active">Store</button>
+        <button id="tab-club">My Club</button>
+      </div>
+    </div>
+
+    <!-- Store -->
+    <section class="screen" id="screen-store">
+      <div class="hero-line">
+        <h1>Crack a <span class="accent">crate</span>.</h1>
+        <p>Every pull is a walkout. Chase the Icons.</p>
+      </div>
+      <div class="packs" id="packs"></div>
+    </section>
+
+    <!-- Club -->
+    <section class="screen" id="screen-club"></section>
+
+  </div>
+
+  <!-- Opening overlay -->
+  <div class="overlay" id="overlay">
+    <div class="stage" id="stage"></div>
+  </div>
+
+  <!-- Card detail modal -->
+  <div class="modal" id="modal">
+    <div class="m-inner" id="modal-body"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="assets/js/packs.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('service-worker.js').catch(() => {}));
+    }
+  </script>
+</body>
+</html>

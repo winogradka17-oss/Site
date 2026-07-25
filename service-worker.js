@@ -1,12 +1,15 @@
 /* Simple offline-first service worker.
    Bump CACHE_VERSION whenever you add/rename pages or assets. */
-const CACHE_VERSION = 'stores-v1';
+const CACHE_VERSION = 'stores-v2';
 const ASSETS = [
   'index.html',
   'sales-analyzing.html',
   'your-sales.html',
+  'cs2-packs.html',
   'assets/css/style.css',
+  'assets/css/packs.css',
   'assets/js/app.js',
+  'assets/js/packs.js',
   'assets/icons/icon.svg',
   'manifest.webmanifest'
 ];

@@ -1,11 +1,44 @@
 # Site
 
-Two installable **Progressive Web Apps**, both built in plain HTML/CSS/JS in the
+Installable **Progressive Web Apps**, all built in plain HTML/CSS/JS in the
 shared dark + lime design language:
 
 1. **Stores — Sales Dashboard** (root) — the design template.
 2. **Зарплата** (`/zarplata/`) — a real earnings tracker, redesigned in this
    style. See [`zarplata/`](zarplata/) and the section at the bottom.
+3. **CS2 Pack Opening** (`cs2-packs.html`) — a FUT-style card pack-opening game
+   for CS2 pros. See the section below.
+
+---
+
+# CS2 Pack Opening (`cs2-packs.html`)
+
+A Counter-Strike 2 twist on FIFA / EA FC **Ultimate Team pack openings**. Spend
+coins on crates, watch the walkout reveal animation, and collect FUT-style
+player cards for real CS2 pros across four rarities.
+
+Open `cs2-packs.html` directly (it installs as its own app).
+
+## What's in it
+
+- **Four card rarities** recreated in pure CSS to match the supplied designs:
+  **Bronze**, **Silver**, **Gold** and the ivory **Icon**. Each card has the
+  shield frame, rating + role (AWP / RIF / ENT / IGL / SUP / LUR), player
+  silhouette, name banner, nation flag, team shield and six CS2 stats
+  (**FIR · UTL · SNP · IMP · CLT · OPN**).
+- **The walkout reveal** — tap a crate to open: screen flash, a rising beam of
+  light tinted by the pull's rarity, rotating "walkout" rays for Gold/Icon,
+  sparkle particles, a 3-D card flip and stats that count up. Rarity-tuned
+  WebAudio blips (toggle with the speaker button, no audio files).
+- **Coins economy** — four crates (`Starter / Prime / Elite / Legends Vault`)
+  with different costs and drop odds. Quick-sell duplicates for coins, or claim
+  a small top-up if you go broke.
+- **My Club** — every pull is saved (localStorage), deduplicated with a copy
+  count, sorted by rating, with totals and a best-card stat. Tap any card for a
+  detail view.
+
+The player pool, drop odds and stat model all live in `assets/js/packs.js`;
+all visuals (cards + animation) live in `assets/css/packs.css`.
 
 ---
 
